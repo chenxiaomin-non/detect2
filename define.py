@@ -6,9 +6,6 @@ print(sys.path)
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-depends = open(PROJECT_DIR + '/.depend' , 'r')
-for line in depends:
-    os.system('pip install %s' % line.strip())
 
 IP_ADDR = 'localhost'
 PORT = 8000
