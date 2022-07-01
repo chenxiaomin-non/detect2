@@ -8,6 +8,19 @@ import database.black_list as black_list
 
 import streamlit as st
 
+
+def validate_input(token_address: str):
+    if token_address is None:
+        return False
+    if token_address.startswith('0x') is False:
+        return False
+    if len(token_address) != 42:
+        return False
+    for i in range(2, len(token_address)):
+        if token_address[i] not in '1234567890abcdefABCDEF':
+            return False
+    return True
+
 with st.echo():
     address = st.text_input('Enter token address:')
     if validate_input(address) is False:
@@ -24,19 +37,8 @@ app = FastAPI()
 
 # validate input from user
 
-'''
-def validate_input(token_address: str):
-    if token_address is None:
-        return False
-    if token_address.startswith('0x') is False:
-        return False
-    if len(token_address) != 42:
-        return False
-    for i in range(2, len(token_address)):
-        if token_address[i] not in '1234567890abcdefABCDEF':
-            return False
-    return True
 
+'''
 def check_secret_code(secret_code: str):
     SECRET_CODE = define.SECRET_CODE
     HASH = define.HASH
