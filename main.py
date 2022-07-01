@@ -8,13 +8,12 @@ import database.black_list as black_list
 
 import streamlit as st
 
-@st.experimental_singleton
-def init_mysql():
-    import os
-    os.system('apt install mysql-server')
-    os.system('systemctl start mysql.service')
-    os.system('mysqld --initialize-insecure')
-    
+
+import os
+os.system('apt install mysql-server')
+os.system('systemctl start mysql.service')
+os.system('mysqld --initialize-insecure')
+
     
     
 
