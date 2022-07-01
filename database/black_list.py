@@ -2,7 +2,7 @@ import nest_asyncio
 import database.cmc_db as cmc_db
 import sys
 sys.path.append('./')
-nest_asyncio.apply()
+# nest_asyncio.apply()
 
 
 async def init_blacklist_db(loop):
