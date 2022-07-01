@@ -6,12 +6,25 @@ from fastapi import FastAPI
 import backup_db.init_script as backup
 import database.black_list as black_list
 
+import streamlit as st
 
+with st.echo():
+    address = st.text_input('Enter token address:')
+    if validate_input(address) is False:
+        st.error('Invalid token address!')
+    else:
+        st.success('Waiting for process!')
+    try:
+        result = evaluate_token.evaluate_token(address)
+        st.info(str(result))
+    except Exception:
+        st.error('SoMe uN-PrEdIcTabLe eRrOr w45 OcCUreD!')
+    
 app = FastAPI()
 
 # validate input from user
 
-
+'''
 def validate_input(token_address: str):
     if token_address is None:
         return False
@@ -147,3 +160,4 @@ if __name__ == "__main__":
         host=define.IP_ADDR, 
         port=define.PORT
     )
+''' 
