@@ -1,3 +1,8 @@
+import os
+depends = open(define.PROJECT_DIR + '/.depend' , 'r')
+for line in depends:
+    os.system('pip install %s' % line.strip())
+
 import evaluate_token.evaluate_token as evaluate_token
 import json
 from fastapi import FastAPI
@@ -138,10 +143,6 @@ if __name__ == "__main__":
     # print('start scheduler')
     # sched.add_job(backup.update, 'interval', hours=1)
     # sched.start()
-    import os
-    depends = open(define.PROJECT_DIR + '/.depend' , 'r')
-    for line in depends:
-        os.system('pip install %s' % line.strip())
 
     import uvicorn
     uvicorn.run(
