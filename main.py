@@ -21,17 +21,17 @@ def validate_input(token_address: str):
             return False
     return True
 
-with st.echo():
-    address = st.text_input('Enter token address:')
-    if validate_input(address) is False:
-        st.error('Invalid token address!')
-    else:
-        st.success('Waiting for process!')
-    try:
-        result = evaluate_token.evaluate_token(address)
-        st.info(str(result))
-    except Exception:
-        st.error('SoMe uN-PrEdIcTabLe eRrOr w45 OcCUreD!')
+
+address = st.text_input('Enter token address:')
+if validate_input(address) is False:
+    st.error('Invalid token address!')
+else:
+    st.success('Waiting for process!')
+try:
+    result = evaluate_token.evaluate_token(address)
+    st.info(str(result))
+except Exception:
+    st.error('SoMe uN-PrEdIcTabLe eRrOr w45 OcCUreD!')
 
 #
 #
