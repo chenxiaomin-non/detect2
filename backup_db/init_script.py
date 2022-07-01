@@ -1,4 +1,4 @@
-import nest_asyncio
+# import nest_asyncio
 import coin_marketcap.metadata_api as cmc_api
 import database.total_token as total_token
 import database.cmc_db as cmc_db
