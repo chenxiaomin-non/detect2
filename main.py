@@ -1,8 +1,4 @@
 import define
-import os
-depends = open(define.PROJECT_DIR + '/.depend' , 'r')
-for line in depends:
-    os.system('pip install %s' % line.strip())
 
 import evaluate_token.evaluate_token as evaluate_token
 import json
