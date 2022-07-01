@@ -1,16 +1,20 @@
+import imp_in
+import define
+import datetime
 import coin_marketcap.metadata_api as cmc_api
 import database.result as rs
 import asyncio
 import json
 import aiomysql
+import nest_asyncio
 
-import sys
-sys.path.append('./')
+nest_asyncio.apply()
 
-DB_IN_USED = 'cmc_token2'
+
+DB_IN_USED = define.DB_IN_USED
 loop = asyncio.get_event_loop()
 
-db_info = json.load(open('./database/config.json'))
+db_info = json.load(open(define.PROJECT_DIR + '/database/config.json'))
 HOST = db_info['general']['host']
 USER = db_info['general']['user']
 PASSWORD = db_info['general']['password']
@@ -18,7 +22,6 @@ UNIX_SOCKET = db_info['general']['unix_socket']
 PORT = db_info['general']['port']
 
 # this variable is used to store the result of the query
-result = None
 
 
 #########################################################################
@@ -120,7 +123,7 @@ async def fill_to_metadata(loop, data: list, db_name: str = 'cmc_metadata'):
     # Get the data from the API
 
     async with pool.acquire() as con:
-        print('\n\n', len(data), '\n')
+        print('** Starting insert %s tokens to database' % len(data))
         for token in data:
             cursor = await con.cursor()
             # Get the data from the API
@@ -148,7 +151,6 @@ async def fill_to_metadata(loop, data: list, db_name: str = 'cmc_metadata'):
                 INSERT INTO ''' + db_name + ''' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''',
                                  (id, name, symbol, slug, cmc_rank, is_active,
                                   first_historical_data, last_historical_data, platform, token_address,))
-            print('Insert %s %s %s' % (id, name, symbol))
             await con.commit()
     pool.close()
     await pool.wait_closed()
@@ -160,7 +162,7 @@ async def fill_to_price(loop, db_name='cmc_price'):
     data = cmc_api.get_token_price_from_cmc()
 
     async with pool.acquire() as con:
-        print('\n\n', len(data), '\n')
+        print('** Starting insert %s tokens to database' % len(data))
         for token in data:
             cursor = await con.cursor()
             # Get the data from the API
@@ -233,7 +235,7 @@ async def get_price(loop, index: int, id: str):
 
 
 async def update_metadata(loop, token_metadata):
-    con = get_connection_to_database(loop)
+    con = await get_connection_to_database(loop)
     async with con.cursor() as cursor:
         await cursor.execute('''
             UPDATE cmc_metadata SET name = %s, symbol = %s, slug = %s, cmc_rank = %s, is_active = %s, first_historical_data = %s, last_historical_data = %s, platform = %s, token_address = %s WHERE id = %s''',
@@ -243,14 +245,16 @@ async def update_metadata(loop, token_metadata):
 
 
 async def change_name(loop):
-    con = get_connection_to_database(loop)
+    con = await get_connection_to_database(loop)
+    time = str(datetime.datetime.timestamp(
+        datetime.datetime.now())).replace('.', '_')
     async with con.cursor() as cursor:
         await cursor.execute('''
             DROP TABLE IF EXISTS backup_cmc_metadata;
             DROP TABLE IF EXISTS backup_cmc_price;
             ALTER TABLE cmc_metadata RENAME TO backup_cmc_metadata;
             ALTER TABLE new_cmc_metadata RENAME TO cmc_metadata;
-            ALTER TABLE cmc_price RENAME TO backup_cmc_price;
+            ALTER TABLE cmc_price RENAME TO at_''' + time + '''_cmc_price;
             ALTER TABLE new_cmc_price RENAME TO cmc_price;
         ''')
         await con.commit()
@@ -258,17 +262,19 @@ async def change_name(loop):
 
 
 async def update_init(loop):
-    con = get_connection_to_database(loop)
+    con = await get_connection_to_database(loop)
     async with con.cursor() as cursor:
         await cursor.execute('''
-        CREATE TABLE new_cmc_metadata LIKE cmc_metadata;
-        CREATE TABLE new_cmc_price LIKE cmc_price;''')
+            DROP TABLE IF EXISTS new_cmc_metadata;
+            DROP TABLE IF EXISTS new_cmc_price;
+            CREATE TABLE new_cmc_metadata LIKE cmc_metadata;
+            CREATE TABLE new_cmc_price LIKE cmc_price;''')
         await con.commit()
     con.close()
 
 
 async def backup(loop, db: list):
-    con = get_connection_to_database(loop)
+    con = await get_connection_to_database(loop)
     async with con.cursor() as cursor:
         if db.index('cmc_metadata') != -1:
             await cursor.execute('''
@@ -284,12 +290,3 @@ async def backup(loop, db: list):
                 DROP TABLE error_cmc_price; ''')
             await con.commit()
     con.close()
-
-
-def get_result():
-    return result
-
-
-def clear_result():
-    global result
-    result = None

@@ -1,3 +1,4 @@
+from datetime import datetime
 import get_info_interface as get_info
 import database.result as rs
 import evaluate_token.group_2 as simple_scan
@@ -74,6 +75,9 @@ def save_result(result, data):
 def evaluate_token(token_address: str = None, name: str = None, symbol: str = None):
     data = get_latest_result(token_address, name, symbol)
     data = jsonify_latest_result(data)
+    _5_DAY = 5 * 24 * 60 * 60 
+    if datetime.now().timestamp() - data['timestamp'] > _5_DAY:
+        data = None
 
     if data == None:
         data = get_info.get_info_for_validator(token_address)

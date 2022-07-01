@@ -8,8 +8,7 @@ import coin_marketcap.metadata_api as cmc_api
 import database.cmc_db as cmc_db
 import database.total_token as total_token
 import database.result as rs
-import sys
-sys.path.append('./')
+
 
 ETH_PLATFORM_ID = 1027
 BSC_PLATFORM_ID = 1839
