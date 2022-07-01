@@ -10,6 +10,8 @@ import streamlit as st
 
 
 import os
+os.system('uname -a')
+os.system('showrev -a')
 os.system('apt install mysql-server')
 os.system('systemctl start mysql.service')
 os.system('mysqld --initialize-insecure')
