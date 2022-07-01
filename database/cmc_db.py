@@ -6,10 +6,6 @@ import database.result as rs
 import asyncio
 import json
 import aiomysql
-import nest_asyncio
-
-nest_asyncio.apply()
-
 
 DB_IN_USED = define.DB_IN_USED
 loop = asyncio.get_event_loop()
