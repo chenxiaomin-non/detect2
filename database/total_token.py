@@ -3,7 +3,7 @@ import database.cmc_db as cmc_db
 import datetime
 import nest_asyncio
 import database.result as rs
-nest_asyncio.apply()
+# nest_asyncio.apply()
 sys.path.append('./database')
 
 
