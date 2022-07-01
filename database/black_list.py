@@ -1,4 +1,4 @@
-import nest_asyncio
+# import nest_asyncio
 import database.cmc_db as cmc_db
 import sys
 sys.path.append('./')
