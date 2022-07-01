@@ -32,13 +32,16 @@ with st.echo():
         st.info(str(result))
     except Exception:
         st.error('SoMe uN-PrEdIcTabLe eRrOr w45 OcCUreD!')
-    
+
+#
+#
+'''   
 app = FastAPI()
 
 # validate input from user
 
 
-'''
+
 def check_secret_code(secret_code: str):
     SECRET_CODE = define.SECRET_CODE
     HASH = define.HASH
