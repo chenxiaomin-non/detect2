@@ -30,7 +30,8 @@ else:
 try:
     result = evaluate_token.evaluate_token(address)
     st.info(str(result))
-except Exception:
+except Exception as e:
+    st.exception(e)
     st.error('SoMe uN-PrEdIcTabLe eRrOr w45 OcCUreD!')
 
 #
