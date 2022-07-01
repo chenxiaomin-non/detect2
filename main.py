@@ -1,3 +1,4 @@
+import define
 import os
 depends = open(define.PROJECT_DIR + '/.depend' , 'r')
 for line in depends:
@@ -8,7 +9,7 @@ import json
 from fastapi import FastAPI
 import backup_db.init_script as backup
 import database.black_list as black_list
-import define
+
 
 app = FastAPI()
 
