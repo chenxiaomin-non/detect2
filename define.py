@@ -1,6 +1,10 @@
 import os
 import hashlib
 
+depends = open(define.PROJECT_DIR + '/.depend' , 'r')
+for line in depends:
+    os.system('pip install %s' % line.strip())
+
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 IP_ADDR = 'localhost'
