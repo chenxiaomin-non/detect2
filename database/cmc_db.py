@@ -8,7 +8,12 @@ import json
 import aiomysql
 
 DB_IN_USED = define.DB_IN_USED
-loop = asyncio.get_event_loop()
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError as e:
+    if str(e).startswith('There is no current event loop in thread'):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
 db_info = json.load(open(define.PROJECT_DIR + '/database/config.json'))
 HOST = db_info['general']['host']
