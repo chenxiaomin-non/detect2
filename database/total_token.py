@@ -112,11 +112,11 @@ async def find_by_symbol(loop, index: int, symbol: str):
 def find(type: str, index: int, value: str):
     loop = cmc_db.loop
     if type == "address":
-        loop.run_until_complete(find_by_address(loop, index, value))
+        loop.run_in_executor(None, lamda=find_by_address(loop, index, value))
     elif type == "name":
-        loop.run_until_complete(find_by_name(loop, index, value))
+        loop.run_in_executor(None, lamda=find_by_name(loop, index, value))
     elif type == "symbol":
-        loop.run_until_complete(find_by_symbol(loop, index, value))
+        loop.run_in_executor(None, lamda=find_by_symbol(loop, index, value))
     else:
         print("Invalid type")
 
