@@ -33,8 +33,7 @@ async def get_connection_to_database(loop):
     # Connect to the database
     async with aiosqlite.connect(file_name) as connection:
         async with connection.cursor() as cursor:
-            await cursor.execute("CREATE DATABASE IF NOT EXISTS %s" % (DB_IN_USED,))
-            await cursor.execute("USE %s" % (DB_IN_USED,))
+            await cursor.execute("select sqlite_version();")
             await connection.commit()
     return connection
 
