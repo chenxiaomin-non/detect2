@@ -6,21 +6,18 @@ import database.result as rs
 import asyncio
 import json
 import aiomysql
+import aiosqlite
 
 DB_IN_USED = define.DB_IN_USED
+
+file_name = 'cmc_database.db'
 try:
     loop = asyncio.get_event_loop()
 except RuntimeError as e:
     if str(e).startswith('There is no current event loop in thread'):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-
-db_info = json.load(open(define.PROJECT_DIR + '/database/config.json'))
-HOST = db_info['general']['host']
-USER = db_info['general']['user']
-PASSWORD = db_info['general']['password']
-UNIX_SOCKET = db_info['general']['unix_socket']
-PORT = db_info['general']['port']
+    
 
 # this variable is used to store the result of the query
 
@@ -34,18 +31,11 @@ PORT = db_info['general']['port']
 async def get_connection_to_database(loop):
 
     # Connect to the database
-    connection = await aiomysql.connect(
-        host=HOST,
-        port=PORT,
-        user=USER,
-        password=PASSWORD,
-        loop=loop,
-        unix_socket=UNIX_SOCKET
-    )
-    async with connection.cursor() as cursor:
-        await cursor.execute("CREATE DATABASE IF NOT EXISTS %s" % (DB_IN_USED,))
-        await cursor.execute("USE %s" % (DB_IN_USED,))
-        await connection.commit()
+    async with aiosqlite.connect(file_name) as connection
+        async with connection.cursor() as cursor:
+            await cursor.execute("CREATE DATABASE IF NOT EXISTS %s" % (DB_IN_USED,))
+            await cursor.execute("USE %s" % (DB_IN_USED,))
+            await connection.commit()
     return connection
 
 #
@@ -53,18 +43,18 @@ async def get_connection_to_database(loop):
 #
 
 
-async def get_pool_connection(loop):
-    pool = await aiomysql.create_pool(
-        host=HOST,
-        port=PORT,
-        user=USER,
-        password=PASSWORD,
-        loop=loop,
-        unix_socket=UNIX_SOCKET,
-        db=DB_IN_USED
-    )
+# async def get_pool_connection(loop):
+#     pool = await aiomysql.create_pool(
+#         host=HOST,
+#         port=PORT,
+#         user=USER,
+#         password=PASSWORD,
+#         loop=loop,
+#         unix_socket=UNIX_SOCKET,
+#         db=DB_IN_USED
+#     )
 
-    return pool
+#     return pool
 
 #########################################################################
 
@@ -120,13 +110,13 @@ async def cmc_init_database(loop):
 
 
 async def fill_to_metadata(loop, data: list, db_name: str = 'cmc_metadata'):
-    pool = await get_pool_connection(loop)
+    pool = await get_connection_to_database(loop)
     # Get the data from the API
 
-    async with pool.acquire() as con:
+    async with pool.cursor() as cursor:
         print('** Starting insert %s tokens to database' % len(data))
         for token in data:
-            cursor = await con.cursor()
+            # cursor = await con.cursor()
             # Get the data from the API
             id = token['id']
             name = token['name']
@@ -152,20 +142,20 @@ async def fill_to_metadata(loop, data: list, db_name: str = 'cmc_metadata'):
                 INSERT INTO ''' + db_name + ''' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);''',
                                  (id, name, symbol, slug, cmc_rank, is_active,
                                   first_historical_data, last_historical_data, platform, token_address,))
-            await con.commit()
-    pool.close()
-    await pool.wait_closed()
+            await pool.commit()
+#     pool.close()
+#     await pool.wait_closed()
 
 
 async def fill_to_price(loop, db_name='cmc_price'):
-    pool = await get_pool_connection(loop)
+    pool = await get_connection_to_database(loop)
     # Get the data from the API
     data = cmc_api.get_token_price_from_cmc()
 
-    async with pool.acquire() as con:
+    async with pool.cursor() as cursor:
         print('** Starting insert %s tokens to database' % len(data))
         for token in data:
-            cursor = await con.cursor()
+            # cursor = await con.cursor()
             # Get the data from the API
             id = token['id']
             num_market_pair = token['num_market_pairs']
@@ -188,9 +178,9 @@ async def fill_to_price(loop, db_name='cmc_price'):
                                   float(usd_price), float(usd_volume_24h), float(
                                       percent_change_1h), float(percent_change_24h),
                                      float(percent_change_7d), float(market_cap), float(fully_diluted_market_cap),))
-            await con.commit()
-    pool.close()
-    await pool.wait_closed()
+            await pool.commit()
+#     pool.close()
+#     await pool.wait_closed()
 
 # run SELECT query on the database
 # return something based on the params
